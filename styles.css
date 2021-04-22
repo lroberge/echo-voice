@@ -1,0 +1,12 @@
+body {
+    background: white;
+    margin:0;
+    padding:0;
+}
+
+#chrome {
+    width: 100vw;
+    height: 20px;
+    -webkit-app-region: drag;
+    background: steelblue;
+}
