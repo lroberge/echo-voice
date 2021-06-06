@@ -2,17 +2,37 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Hello World!</title>
+    <title>echo-voice</title>
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
     <link rel="stylesheet" href="styles.css">
+    <script src="js/loader.js" type="module"></script>
 </head>
 <body>
-    <div id="chrome"></div>
-    <h1>Hello World!</h1>
-    <p>
-        We are using Node.js <span id="node-version"></span>,
-        Chromium <span id="chrome-version"></span>,
-        and Electron <span id="electron-version"></span>.
-    </p>
+    <!-- <div id="chrome">
+        <div id="close">X</div>
+    </div> -->
+    <h1>Shoddy as fuck Echo voice changer</h1>
+    <canvas width="800" height="400"></canvas>
+	<div id="controls">
+		<section>
+			<label>Output device:
+				<select id="outputSelect">
+					<option value="nothing" selected>No output devices!</option>
+				</select>
+			</label>
+		</section>
+		
+		<section>
+			Input volume: <input type="range" id="volumeSlider" min="0" max="2" value="1" step="0.01">
+			<span id="volumeLabel">???</span>
+			Output volume: <input type="range" id="outputVolumeSlider" min="0" max="2" value="1" step="0.01">
+			<span id="outputVolumeLabel">???</span>
+			<span><input type="checkbox" id="monitorCB" checked><label for="monitorCB">Enable Monitor</label></span>
+			Monitor volume: <input type="range" id="monitorVolumeSlider" min="0" max="1" value="0.2" step="0.01">
+			<span id="monitorVolumeLabel">???</span>
+		</section>
+	</div>
 </body>
+<script>
+</script>
 </html>

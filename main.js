@@ -1,18 +1,28 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron')
 const path = require('path')
 
+let win = null;
+
 function createWindow () {
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
-    frame: false
-  })
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+    //frame: false
+  });
 
-  win.loadFile('index.html')
+  win.loadFile('index.html');
 }
 
 app.whenReady().then(() => {
   createWindow()
+
+  globalShortcut.register('Alt+G', () => {
+    win.webContents.executeJavaScript(`toggleFilter();`).then(() => console.log("toggled"));
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

@@ -1,12 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;500;900&display=swap');
+
 body {
+    font-family: 'Roboto', sans-serif;
     background: white;
     margin:0;
     padding:0;
 }
 
-#chrome {
+button[data-playing="yes"]:after{
+    content: "Pause";
+  }
+  
+  button[data-playing="no"]:after{
+    content: "Play";
+  }
+
+/* #chrome {
+    position:fixed;
+    left:0;
+    top:0;
     width: 100vw;
     height: 20px;
     -webkit-app-region: drag;
     background: steelblue;
 }
+
+#chrome #close {
+    position:fixed;
+    padding:0 10px 0;
+    display:block;
+    width: 10px;
+    height: 20px;
+    right:0;
+    background-color:crimson;
+    color: white;
+    transition: background-color 0.1s;
+}
+
+#chrome #close:active {
+    background-color:red;
+} */

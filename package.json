@@ -1,7 +1,7 @@
 {
   "name": "echo-voice",
   "version": "0.1.0",
-  "description": "Voice changer for Echo DnD character",
+  "description": "Voice changer for Warforged DnD characters",
   "main": "main.js",
   "author": "caprinecanine",
   "devDependencies": {
