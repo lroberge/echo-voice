@@ -2,18 +2,78 @@
 
 body {
     font-family: 'Roboto', sans-serif;
-    background: white;
+    background: #202531;
     margin:0;
     padding:0;
 }
 
-button[data-playing="yes"]:after{
-    content: "Pause";
-  }
-  
-  button[data-playing="no"]:after{
-    content: "Play";
-  }
+#chrome {
+    height:20px;
+    width:100vw;
+    background:#0f1218;
+    color:white;
+    -webkit-app-region: drag;
+    text-align: right;
+    vertical-align:middle;
+}
+
+#chrome #chromeText {
+    padding:3px;
+    float:left;
+    font-size:11px;
+    text-align:center;
+}
+
+#chrome #chromeClose {
+    display:inline-block;
+    width:20px;
+    text-align:center;
+    -webkit-app-region: no-drag;
+    border:0;
+    padding:0;
+    padding-bottom:5px;
+    background:crimson;
+    color: inherit;
+}
+
+.hidden {
+    display:none;
+}
+
+.nodebox {
+    margin:5px;
+    background:black;
+    padding:10px;
+    color:white;
+    display: inline-block;
+    width: 400px;
+    height:72px;
+    vertical-align:top;
+}
+
+.nodebox * {
+    margin:10px;
+}
+
+.error {
+    color: crimson;
+    transition: opacity 0.2s;
+}
+
+.hide-transparent {
+    opacity: 0;
+}
+
+.nodebox .nodetitle {
+    display: inline-block;
+    background:white;
+    color:black;
+    padding:2.5px 5px;    
+    font-weight:bold;
+    font-size:1.5em;
+    margin:0;
+}
+
 
 /* #chrome {
     position:fixed;

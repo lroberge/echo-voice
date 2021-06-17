@@ -1,22 +1,17 @@
 import Jungle from './jungle.js';
 
-// 1 - our WebAudio context, **we will export and make this public at the bottom of the file**
 let audioCtx;
 
-// **These are "private" properties - these will NOT be visible outside of this module (i.e. file)**
-// 2 - WebAudio nodes that are part of our WebAudio audio routing graph
+// WebAudio nodes that are part of our WebAudio audio routing graph
 let element, monitorElement, sourceNode, analyserNode, gainNode, delayNode, jungleNode, destNode, monitorNode, monitorDestNode, masterNode;
 
-// 3 - here we are faking an enumeration
-// hey, i did this in my project 1! albeit not with object.freeze
 const DEFAULTS = Object.freeze({
     gain: .5,
     monitorGain: .1,
     numSamples: 256
 });
 
-// create a new array of 8-bit integers (0-255)
-// this is a typed array to hold the audio frequency data
+// create a typed array to hold the audio frequency data
 let audioData = new Uint8Array(DEFAULTS.numSamples / 2);
 
 async function setupWebaudio(sinkId) {
@@ -76,26 +71,38 @@ async function setupWebaudio(sinkId) {
 
                     analyserNode.fftSize = DEFAULTS.numSamples;
 
-                    // 7 - create a gain (volume) node
+                    // create input gain (volume) node
                     gainNode = audioCtx.createGain();
                     gainNode.gain.value = DEFAULTS.gain;
 
-                    // 8 - connect the nodes - we now have an audio graph
+                    // connect the nodes
+                    // connect source directly to input volume control
                     sourceNode.connect(gainNode);
+                    // connect volume-adjusted audio to pitch shift node
                     gainNode.connect(jungleNode.input);
+                    // connect pitch-shifted audio to both delay node and master output node
+                    // - this is the comb filter
                     jungleNode.output.connect(delayNode);
-                    delayNode.connect(masterNode);
                     jungleNode.output.connect(masterNode);
+                    // connect delay node to master output node
+                    delayNode.connect(masterNode);
 
+                    // connect master to analyser and monitor nodes
                     masterNode.connect(analyserNode);
                     masterNode.connect(monitorNode);
+
+                    // connect analyser node to destination
                     analyserNode.connect(destNode);
 
-                    window.gainNode = gainNode;
-                    window.pitchShifterNode = jungleNode;
+                    // connect monitor (gain) node to monitor desitnation
+                    monitorNode.connect(monitorDestNode);
 
+                    // link main output element to main output stream
                     element.srcObject = destNode.stream;
                     element.play();
+
+                    monitorElement.srcObject = monitorDestNode.stream;
+                    monitorElement.play();
 
                     resolve(element.sinkId);
                 },
@@ -123,11 +130,23 @@ function toggleFilter(filtered) {
     console.log("audio: " + filtered);
 }
 
-function loadSoundFile(sinkId) {
+function changeAudioSink(sinkId) {
     console.log(sinkId);
     element.setSinkId(sinkId).then(() => {
         console.log(element.sinkId);
     });
+}
+
+function setPitchShift(octave) {
+    if (!jungleNode) return;
+    octave = Number(octave);
+    jungleNode.setPitchOffset(octave);
+}
+
+function setCombDelay(ms) {
+    if (!delayNode) return;
+    ms = Number(ms);
+    delayNode.delayTime.value = ms;
 }
 
 function setVolume(value) {
@@ -136,4 +155,21 @@ function setVolume(value) {
     gainNode.gain.value = value;
 }
 
-export { audioCtx, setupWebaudio, loadSoundFile, setVolume, toggleFilter, analyserNode };
+function toggleMonitor(monitor) {
+    if(!masterNode || !monitorNode) return;
+    if(monitor) {
+        masterNode.connect(monitorNode);
+        console.log("monitor node connected with " + masterNode.numberOfOutputs + " outputs");
+    } else {
+        masterNode.disconnect(monitorNode);
+        console.log("monitor node disconnected with " + masterNode.numberOfOutputs + " outputs");
+    }
+}
+
+function setMonitorVolume(value) {
+    if(!monitorNode) return;
+    value = Number(value);
+    monitorNode.gain.value = value;
+}
+
+export { audioCtx, setupWebaudio, changeAudioSink, setPitchShift, setCombDelay, setVolume, toggleMonitor, setMonitorVolume, toggleFilter, analyserNode };

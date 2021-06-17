@@ -3,15 +3,19 @@ const path = require('path')
 
 let win = null;
 
+let currHk = 'Alt+G';
+
 function createWindow () {
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 880,
+    height: 630,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
     },
-    //frame: false
+    backgroundColor: '#0f1218',
+    frame: false,
+    resizable: false
   });
 
   win.loadFile('index.html');
@@ -20,7 +24,7 @@ function createWindow () {
 app.whenReady().then(() => {
   createWindow()
 
-  globalShortcut.register('Alt+G', () => {
+  globalShortcut.register(currHk, () => {
     win.webContents.executeJavaScript(`toggleFilter();`).then(() => console.log("toggled"));
   });
 
@@ -29,6 +33,28 @@ app.whenReady().then(() => {
       createWindow()
     }
   })
+})
+
+ipcMain.on('request-mainprocess-quit', (event) => {
+  win.close();
+})
+
+ipcMain.on('request-mainprocess-change-hotkey', (event, hk) => {
+  globalShortcut.unregisterAll();
+
+  let success = globalShortcut.register(hk, () => {
+    win.webContents.executeJavaScript(`toggleFilter();`).then(() => console.log("toggled"));
+  });
+  if(success) {currHk = hk;}
+  else {
+    win.webContents.executeJavaScript(`hotkeyError();`).then(() => console.log("error setting hotkey " + hk));
+
+    globalShortcut.unregisterAll();
+
+    globalShortcut.register(currHk, () => {
+      win.webContents.executeJavaScript(`toggleFilter();`).then(() => console.log("toggled"));
+    });
+  }
 })
 
 app.on('window-all-closed', () => {

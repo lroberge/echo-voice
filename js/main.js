@@ -16,6 +16,10 @@ const drawParams = {
   showBars: true
 };
 
+let audioData;
+
+const { ipcRenderer } = require('electron');
+
 let outputDevices = []
 
 let filtered = true;
@@ -27,8 +31,12 @@ function init() {
   .then(audio.setupWebaudio)
     .then((e) => {
       console.log(e);
+
       let canvasElement = document.querySelector("canvas"); // hookup <canvas> element
       setupUI(canvasElement);
+
+      // create a byte array (values of 0-255) to hold the audio data
+      audioData = new Uint8Array(audio.analyserNode.fftSize / 2);
 
       canvas.setupCanvas(canvasElement, audio.analyserNode);
       // start visualizer loop
@@ -58,9 +66,13 @@ function init() {
             deviceOption.innerText = device.label;
             outputSelector.appendChild(deviceOption);
           });
-          outputSelector.addEventListener("change", outputSelected);
+          outputSelector.addEventListener("change", changeOutput);
         });
     });
+
+    // make toggleFilter function accessible to the entire document
+    window.toggleFilter = toggleFilter;
+    window.hotkeyError = hotkeyError;
 }
 
 function toggleFilter() {
@@ -71,11 +83,37 @@ function toggleFilter() {
   return filtered;
 }
 
-function outputSelected(e) {
-  audio.loadSoundFile(e.target.value);
+function hotkeyError() {
+  console.log("hotkey errored");
+  document.querySelector("#hotkeyError").classList.toggle("hide-transparent", false);
+  document.querySelector("#hotkeyText").addEventListener("input", removeHotkeyError);
+}
+
+function removeHotkeyError() {
+  document.querySelector("#hotkeyError").classList.toggle("hide-transparent", true);
+  document.querySelector("#hotkeyText").removeEventListener("input", removeHotkeyError);
+}
+
+function changeOutput(e) {
+  audio.changeAudioSink(e.target.value);
 }
 
 function setupUI(canvasElement) {
+
+  let hotkeyTb = document.querySelector("#hotkeyText");
+  let hotkeyButton = document.querySelector("#hotkeySetButton");
+
+  hotkeyButton.onclick = e => {
+    // THIS FUCKING SUCKS DUDE
+    let accelRegex = /((Command|Cmd|Control|Ctrl|CommandOrControl|CmdOrCtrl|Alt|Option|AltGr|Shift|Super|Meta)\+){0,}((F[1-2]?[1-9])|Plus|Space|Tab|(Caps|Num|Scroll)lock|Backspace|Delete|Insert|Return|Enter|Up|Down|Left|Right|Home|End|Page(Up|Down)|Esc(ape)?|Volume(Up|Down|Mute)|Media((Next|Previous)Track|Stop|PlayPause)|PrintScreen|num([0-9]|dec|add|sub|mult|div)|[0-9]|[A-Z]){1}/;
+    let match = hotkeyTb.value.match(accelRegex);
+    if(match[0].length === hotkeyTb.value.length) {
+      console.log("Hotkey changing to " + hotkeyTb.value);
+      ipcRenderer.send('request-mainprocess-change-hotkey', hotkeyTb.value);
+    } else {
+      hotkeyError();
+    }
+  }
 
   // hook up volume slider & label
   let volumeSlider = document.querySelector("#volumeSlider");
@@ -85,27 +123,61 @@ function setupUI(canvasElement) {
     // set the gain
     audio.setVolume(e.target.value);
     // update value of label to match the slider
-    volumeLabel.innerHTML = Math.round((e.target.value / 2 * 100));
+    volumeLabel.innerHTML = Math.round((e.target.value * 100)) + "%";
+  }
+  // make the slider update the label
+  volumeSlider.dispatchEvent(new Event("input"));
+
+  // hook up monitor checkbox
+  let monitorCB = document.querySelector("#monitorCB");
+  monitorCB.oninput = e => {
+    audio.toggleMonitor(e.target.checked);
+    document.querySelector("#monitorVolumeControls").classList.toggle("hidden", !e.target.checked);
   }
 
-  // force an input (with the value unchanged) 
-  // to make the slider update the label
-  volumeSlider.dispatchEvent(new Event("input"));
+  monitorCB.dispatchEvent(new Event("input"));
+
+  // hook up monitor volume slider & label
+  let monitorSlider = document.querySelector("#monitorVolumeSlider");
+  let monitorLabel = document.querySelector("#monitorVolumeLabel");
+
+  monitorSlider.oninput = e => {
+    audio.setMonitorVolume(e.target.value);
+    monitorLabel.innerText = Math.round((e.target.value * 200)) + "%";
+  }
+  // make the slider update the label
+  monitorSlider.dispatchEvent(new Event("input"));
+
+  // hook up pitch shift slider & label
+  let pitchSlider = document.querySelector("#pitchSlider");
+  let pitchLabel = document.querySelector("#pitchLabel");
+
+  pitchSlider.oninput = e => {
+    audio.setPitchShift(e.target.value);
+    pitchLabel.innerText = e.target.value;
+  }
+  // make the slider update the label
+  pitchSlider.dispatchEvent(new Event("input"));
+
+  // hook up roboticness slider & label
+  let combSlider = document.querySelector("#combSlider");
+  let combLabel = document.querySelector("#combLabel");
+
+  combSlider.oninput = e => {
+    let ms = e.target.value / 1000
+    audio.setCombDelay(ms);
+    combLabel.innerText = e.target.value + " ms";
+  }
+  // make the slider update the label
+  combSlider.dispatchEvent(new Event("input"));
 
 } // end setupUI
 
 function loop() {
-  /* NOTE: This is temporary testing code that we will delete in Part II */
   requestAnimationFrame(loop);
   if (!audio.analyserNode) return;
-  // 1) create a byte array (values of 0-255) to hold the audio data
-  // normally, we do this once when the program starts up, NOT every frame
-  let audioData = new Uint8Array(audio.analyserNode.fftSize / 2);
 
-  // 2) populate the array of audio data *by reference* (i.e. by its address)
-  audio.analyserNode.getByteFrequencyData(audioData);
-
-  canvas.draw(drawParams);
+  canvas.draw();
 }
 
 export { init, toggleFilter };

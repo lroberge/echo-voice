@@ -8,28 +8,52 @@
     <script src="js/loader.js" type="module"></script>
 </head>
 <body>
-    <!-- <div id="chrome">
-        <div id="close">X</div>
-    </div> -->
-    <h1>Shoddy as fuck Echo voice changer</h1>
-    <canvas width="800" height="400"></canvas>
+    <div id="chrome">
+		<span id="chromeText">Echo Voice</span>
+		<button id="chromeClose">✖</button>
+    </div>
+    <canvas width="880" height="300"></canvas>
 	<div id="controls">
 		<section>
-			<label>Output device:
-				<select id="outputSelect">
-					<option value="nothing" selected>No output devices!</option>
-				</select>
-			</label>
+			<div class="nodebox" style="width: max-content;">
+				<span class="nodetitle">Output</span><br>
+				<label>Device:
+					<select id="outputSelect">
+						<option value="nothing" selected>No output devices!</option>
+					</select>
+				</label>
+			</div>
+			<div class="nodebox" style="width: max-content;">	
+				<span class="nodetitle">Hotkey</span><span id="hotkeyError" class="hide-transparent error">Invalid hotkey</span><br>
+				<label>Combo:
+					<input type="text" id="hotkeyText" name="hotkeyText" value="Alt+G" style="width: 80px;margin-right:0;">
+				</label>
+				<button id="hotkeySetButton" style="margin-left:0;">Set</button>
+			</div>
 		</section>
 		
 		<section>
-			Input volume: <input type="range" id="volumeSlider" min="0" max="2" value="1" step="0.01">
-			<span id="volumeLabel">???</span>
-			Output volume: <input type="range" id="outputVolumeSlider" min="0" max="2" value="1" step="0.01">
-			<span id="outputVolumeLabel">???</span>
-			<span><input type="checkbox" id="monitorCB" checked><label for="monitorCB">Enable Monitor</label></span>
-			Monitor volume: <input type="range" id="monitorVolumeSlider" min="0" max="1" value="0.2" step="0.01">
-			<span id="monitorVolumeLabel">???</span>
+			<div class="nodebox">
+				<span class="nodetitle">Source</span><br>
+				Volume: <input type="range" id="volumeSlider" min="0" max="2" value="1" step="0.01" style="width:250px;">
+				<span id="volumeLabel">???</span><br>
+			</div><div class="nodebox">
+				<span class="nodetitle">Monitor</span>
+				<span><input type="checkbox" id="monitorCB"><label for="monitorCB">Enable Monitor</label></span>
+				<span id="monitorVolumeControls">
+					<br>Volume: <input type="range" id="monitorVolumeSlider" min="0" max="0.5" value="0.1" step="0.01" style="width:250px;">
+					<span id="monitorVolumeLabel">???</span>
+				</span>
+			</div><br>
+			<div class="nodebox">
+				<span class="nodetitle">Pitch Shift</span><br>
+				Octave: <input type="range" id="pitchSlider" min="-1" max="1" value="-0.25" step="0.05" style="width:250px;">
+				<span id="pitchLabel">???</span><br>
+			</div><div class="nodebox">
+				<span class="nodetitle">Roboticness</span><br>
+				Delay: <input type="range" id="combSlider" min="0" max="50" value="20" step="1" style="width:250px;">
+				<span id="combLabel">???</span><br>
+			</div>
 		</section>
 	</div>
 </body>
