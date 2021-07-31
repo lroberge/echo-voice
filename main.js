@@ -8,7 +8,7 @@ let currHk = 'Alt+G';
 function createWindow () {
   win = new BrowserWindow({
     width: 880,
-    height: 630,
+    height: 740,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,

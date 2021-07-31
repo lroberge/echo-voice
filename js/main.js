@@ -22,7 +22,7 @@ const { ipcRenderer } = require('electron');
 
 let outputDevices = []
 
-let filtered = true;
+window.filtered = true;
 
 function init() {
   console.log("init called");
@@ -41,6 +41,9 @@ function init() {
       canvas.setupCanvas(canvasElement, audio.graph);
       // start visualizer loop
       loop();
+
+      audio.toggleFilter(window.filtered);
+      canvas.toggleBg(window.filtered);
 
       navigator.mediaDevices.enumerateDevices()
         .then((devices) => {
@@ -77,9 +80,9 @@ function init() {
 
 function toggleFilter() {
   console.log("filtered: " + filtered);
+  filtered = !filtered;
   canvas.toggleBg(filtered);
   audio.toggleFilter(filtered);
-  filtered = !filtered;
   return filtered;
 }
 
@@ -99,6 +102,28 @@ function changeOutput(e) {
 }
 
 function setupUI(canvasElement) {
+
+  let voiceDropdown = document.querySelector("#voiceSelect");
+  voiceDropdown.addEventListener("change", e => {
+    switch(e.target.value) {
+      case "warforged":
+        audio.setupWarforgedVoice().then(e => {
+          setupParamsUI();
+          audio.toggleFilter(filtered);
+          console.log("switched to warforged");
+          console.log(e);
+        });
+        break;
+      case "deepspeech":
+        audio.setupDeepSpeechVoice().then(e => {
+          setupParamsUI();
+          audio.toggleFilter(filtered);
+          console.log("switched to deepspeech");
+          console.log(e);
+        });
+        break;
+    }
+  });
 
   let hotkeyTb = document.querySelector("#hotkeyText");
   let hotkeyButton = document.querySelector("#hotkeySetButton");
@@ -172,14 +197,14 @@ function setupParamsUI() {
     slider.setAttribute("min", param.min);
     slider.setAttribute("max", param.max);
     slider.setAttribute("step", param.step);
-    slider.setAttribute("value", param.default);
+    slider.setAttribute("value", param.defaultValue);
 
     label.innerText = param.name;
     unitlabel.innerText = param.unitlabel;
 
 
     slider.oninput = e => {
-      audio.modifyParam(i, e.target.value)
+      audio.graph.params[i].modify(e.target.value);
       units.innerText = e.target.value + " " + param.unit;
     }
     // make the slider update the label

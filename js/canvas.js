@@ -29,9 +29,9 @@ function setupCanvas(canvasElement,graphRef){
 
 function toggleBg(bool) {
     if(bool) {
-        gradient = utils.getLinearGradient(ctx,0,0,0,canvasHeight,[{percent:0,color:"#0292fc"},{percent:1,color:"#35356a"}]);
-    } else {
         gradient = utils.getLinearGradient(ctx,0,0,0,canvasHeight,[{percent:0,color:"#22c38b"},{percent:1,color:"#2efd2d"}]);
+    } else {
+        gradient = utils.getLinearGradient(ctx,0,0,0,canvasHeight,[{percent:0,color:"#0292fc"},{percent:1,color:"#35356a"}]);
     }
 
     console.log("canvas: " + bool);
