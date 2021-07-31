@@ -79,6 +79,7 @@ class AudioGraph {
 
         // hackaround
         this.toggle(true);
+        this.toggleMonitor(false);
     }
 
     /** Gain value applied to the input stream.*/
@@ -219,6 +220,9 @@ class AudioGraph {
             this.topLevelNodes.forEach(node => {
                 this.gainNode.connect(node);
             });
+            if(this.#monitorEnabled) {
+                this.masterNode.connect(this.monitorNode);
+            }
             if(this.#ioLinked) {
                 this.gainNode.connect(this.masterNode);
             }
@@ -234,16 +238,12 @@ class AudioGraph {
      * @param {Boolean} [force] Whether the monitor output should be enabled.
      */
     toggleMonitor(force) {
-        this.monitorEnabled = force;
-        if (this.#monitorEnabled) {
+        this.#monitorEnabled = force;
+        if (this.#monitorEnabled && this.#enabled) {
             this.masterNode.connect(this.monitorNode);
         } else {
             this.masterNode.disconnect(this.monitorNode);
         }
-    }
-
-    toggleMonitor() {
-        toggleMonitor(!this.#monitorEnabled);
     }
 
     /**

@@ -127,11 +127,11 @@ function setVolume(value) {
 }
 
 function toggleMonitor(monitor) {
-
+    graph.toggleMonitor(monitor);
 }
 
 function setMonitorVolume(value) {
-
+    graph.monitorVolume = value;
 }
 
 export { audioCtx, graph, setupWarforgedVoice, setupDeepSpeechVoice, changeAudioSink, modifyParam, setVolume, toggleMonitor, setMonitorVolume, toggleFilter };
