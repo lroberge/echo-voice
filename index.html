@@ -45,14 +45,14 @@
 					<span id="monitorVolumeLabel">???</span>
 				</span>
 			</div><br>
-			<div class="nodebox">
-				<span class="nodetitle">Pitch Shift</span><br>
-				Octave: <input type="range" id="pitchSlider" min="-1" max="1" value="-0.25" step="0.05" style="width:250px;">
-				<span id="pitchLabel">???</span><br>
-			</div><div class="nodebox">
-				<span class="nodetitle">Roboticness</span><br>
-				Delay: <input type="range" id="combSlider" min="0" max="50" value="20" step="1" style="width:250px;">
-				<span id="combLabel">???</span><br>
+			<div id="param0" class="nodebox paramBox hide-transparent">
+				<span class="nodetitle paramLabel">Param0</span><br>
+				<span class="paramUnit">Value:</span> <input type="range" class="paramSlider" min="-10" max="1" value="-0.25" step="0.05" style="width:250px;">
+				<span class="paramValue">???</span><br>
+			</div><div id="param1" class="nodebox paramBox hide-transparent">
+				<span class="nodetitle paramLabel">Param1</span><br>
+				<span class="paramUnit">Value:</span> <input type="range" class="paramSlider" min="0" max="50" value="20" step="1" style="width:250px;">
+				<span class="paramValue">???</span><br>
 			</div>
 		</section>
 	</div>

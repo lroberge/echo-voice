@@ -28,7 +28,7 @@ function init() {
   console.log("init called");
   console.log(`Testing utils.getRandomColor() import: ${utils.getRandomColor()}`);
   navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-  .then(audio.setupWebaudio)
+  .then(audio.setupWarforgedVoice)
     .then((e) => {
       console.log(e);
 
@@ -36,9 +36,9 @@ function init() {
       setupUI(canvasElement);
 
       // create a byte array (values of 0-255) to hold the audio data
-      audioData = new Uint8Array(audio.analyserNode.fftSize / 2);
+      audioData = new Uint8Array(audio.graph.analyserNode.fftSize / 2);
 
-      canvas.setupCanvas(canvasElement, audio.analyserNode);
+      canvas.setupCanvas(canvasElement, audio.graph);
       // start visualizer loop
       loop();
 
@@ -148,34 +148,54 @@ function setupUI(canvasElement) {
   // make the slider update the label
   monitorSlider.dispatchEvent(new Event("input"));
 
-  // hook up pitch shift slider & label
-  let pitchSlider = document.querySelector("#pitchSlider");
-  let pitchLabel = document.querySelector("#pitchLabel");
-
-  pitchSlider.oninput = e => {
-    audio.setPitchShift(e.target.value);
-    pitchLabel.innerText = e.target.value;
-  }
-  // make the slider update the label
-  pitchSlider.dispatchEvent(new Event("input"));
-
-  // hook up roboticness slider & label
-  let combSlider = document.querySelector("#combSlider");
-  let combLabel = document.querySelector("#combLabel");
-
-  combSlider.oninput = e => {
-    let ms = e.target.value / 1000
-    audio.setCombDelay(ms);
-    combLabel.innerText = e.target.value + " ms";
-  }
-  // make the slider update the label
-  combSlider.dispatchEvent(new Event("input"));
+  setupParamsUI();
 
 } // end setupUI
 
+function setupParamsUI() {
+  for (let i = 0; i < audio.graph.params.length; i++) {
+    if (i > 1) { break; } // temporary - TODO: support more than 2 parameters
+    
+    let param = audio.graph.params[i];
+
+
+    // hook up slider & label
+    let paramSelector = "#param" + i;
+
+    document.querySelector(paramSelector).classList.toggle("hide-transparent", false);
+
+    let slider = document.querySelector(paramSelector + " > .paramSlider");
+    let label = document.querySelector(paramSelector + " > .paramLabel");
+    let unitlabel = document.querySelector(paramSelector + " > .paramUnit");
+    let units = document.querySelector(paramSelector + " > .paramValue");
+
+    slider.setAttribute("min", param.min);
+    slider.setAttribute("max", param.max);
+    slider.setAttribute("step", param.step);
+    slider.setAttribute("value", param.default);
+
+    label.innerText = param.name;
+    unitlabel.innerText = param.unitlabel;
+
+
+    slider.oninput = e => {
+      audio.modifyParam(i, e.target.value)
+      units.innerText = e.target.value + " " + param.unit;
+    }
+    // make the slider update the label
+    slider.dispatchEvent(new Event("input"));
+  }
+  
+  if (audio.graph.params.length < 2) { // temporary - TODO: these are not robust at ALL dude
+    for(let i = 1; i >= audio.graph.params.length; i--) {
+      document.querySelector("#param" + i).classList.toggle("hide-transparent", true);
+    }
+  }
+}
+
 function loop() {
   requestAnimationFrame(loop);
-  if (!audio.analyserNode) return;
+  if (!audio.graph.analyserNode) return;
 
   canvas.draw();
 }

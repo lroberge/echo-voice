@@ -11,10 +11,10 @@ import * as utils from './utils.js';
 
 let bgOn = false;
 
-let ctx,canvasWidth,canvasHeight,gradient,analyserNode,audioData;
+let ctx,canvasWidth,canvasHeight,gradient,graph,audioData;
 
 
-function setupCanvas(canvasElement,analyserNodeRef){
+function setupCanvas(canvasElement,graphRef){
 	// create drawing context
 	ctx = canvasElement.getContext("2d");
 	canvasWidth = canvasElement.width;
@@ -22,9 +22,9 @@ function setupCanvas(canvasElement,analyserNodeRef){
 	// create a gradient that runs top to bottom
 	gradient = utils.getLinearGradient(ctx,0,0,0,canvasHeight,[{percent:0,color:"#22c38b"},{percent:1,color:"#2efd2d"}]);
 	// keep a reference to the analyser node
-	analyserNode = analyserNodeRef;
+	graph = graphRef;
 	// this is the array where the analyser data will be stored
-	audioData = new Uint8Array(analyserNode.fftSize/2);
+	audioData = new Uint8Array(graph.analyserNode.fftSize/2);
 }
 
 function toggleBg(bool) {
@@ -45,7 +45,7 @@ function toggleBg(bool) {
 
 function draw(){
     // populate the audioData array with the frequency data from the analyserNode
-	analyserNode.getByteFrequencyData(audioData);
+	graph.analyserNode.getByteFrequencyData(audioData);
 	
 	// draw background
 	ctx.save();
